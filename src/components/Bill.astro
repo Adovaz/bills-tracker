@@ -1,21 +1,15 @@
 ---
 import "../styles/global.css";
 
-const {due, total, person } = Astro.props;
-interface personObj {
-    name: string
-    cost: string
-    paid: boolean
-}
-const personArray = JSON.parse(person);
+const { due, total, person } = Astro.props;
 ---
 
-<div class="w-full p-5 bg-fuchsia-300 rounded-lg text-left flex flex-col">
+<div class="w-full p-5 text-left flex flex-col">
   <div class="flex flex-row mb-5">
     <div class="grow">{due}</div>
     <div>Total: ${total}</div>
   </div>
-  <table class="table-auto">
+  <table class="table-fixed">
     <thead>
       <tr>
         <th>Name</th>
@@ -24,25 +18,47 @@ const personArray = JSON.parse(person);
       </tr>
     </thead>
     <tbody>
-      (
-        person.map((personArray) => (
-          <>
+      {
+        person.map(({ name, cost, paid }) => {
+          return (
             <tr>
-              <td>{personArray.name}</td>
-              <td>${personArray.cost}</td>
-              <td class="m-l-5">
+              <td>
                 <input
-                  checked
-                  id="paid"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4"
+                  class="w-25"
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={name}
                 />
               </td>
-            </tr>{
-          </>
-        ))
-        )
+              <td>
+                $
+                <input
+                  class="w-25"
+                  type="number"
+                  id="cost"
+                  name="cost"
+                  value={cost}
+                />
+              </td>
+              <td>
+                <input id="paidCheckbox" type="checkbox" class="w-4 h-4" checked = {paid} />
+              </td>
+            </tr>
+          );
+        })
+      }
     </tbody>
   </table>
+  <div class="flex flex-row">
+    <div class="flex-grow"></div>
+    <button
+      class="m-3 center rounded-lg p-2 text-lg text-slate-800 bg-indigo-300"
+    >
+      <a href=""> Save </a>
+    </button>
+    <button class="m-3 center rounded-lg p-2 text-lg text-slate-800 bg-red-300">
+      <a href=""> Delete</a>
+    </button>
+  </div>
 </div>

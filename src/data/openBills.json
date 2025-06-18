@@ -1,0 +1,44 @@
+[
+  {
+    "isOpen": "true",
+    "due": "22/06/2025",
+    "total": "1200",
+    "person": [
+      { "name": "Avery", "cost": "122.50", "paid": true },
+      { "name": "Cosmo", "cost": "122.50", "paid": true },
+      { "name": "Pamela", "cost": "122.50", "paid": true },
+      { "name": "Ella", "cost": "122.50", "paid": true },
+      { "name": "Bailee", "cost": "122.50", "paid": true },
+      { "name": "Harlan", "cost": "122.50", "paid": false },
+      { "name": "Callum", "cost": "122.50", "paid": false }
+    ]
+  },
+    {
+    "isOpen": "true",
+    "due": "22/06/2025",
+    "total": "1200",
+    "person": [
+      { "name": "Avery", "cost": "122.50", "paid": true },
+      { "name": "Cosmo", "cost": "122.50", "paid": true },
+      { "name": "Pamela", "cost": "122.50", "paid": true },
+      { "name": "Ella", "cost": "122.50", "paid": true },
+      { "name": "Bailee", "cost": "122.50", "paid": true },
+      { "name": "Harlan", "cost": "122.50", "paid": false },
+      { "name": "Callum", "cost": "122.50", "paid": false }
+    ]
+  },
+  {
+    "isOpen": "true",
+    "due": "22/06/2025",
+    "total": "1200",
+    "person": [
+      { "name": "Avery", "cost": "122.50", "paid": true },
+      { "name": "Cosmo", "cost": "122.50", "paid": true },
+      { "name": "Pamela", "cost": "122.50", "paid": true },
+      { "name": "Ella", "cost": "122.50", "paid": true },
+      { "name": "Bailee", "cost": "122.50", "paid": true },
+      { "name": "Harlan", "cost": "122.50", "paid": false },
+      { "name": "Callum", "cost": "122.50", "paid": false }
+    ]
+  }
+]
