@@ -1,0 +1,48 @@
+---
+import "../styles/global.css";
+
+const {due, total, person } = Astro.props;
+interface personObj {
+    name: string
+    cost: string
+    paid: boolean
+}
+const personArray = JSON.parse(person);
+---
+
+<div class="w-full p-5 bg-fuchsia-300 rounded-lg text-left flex flex-col">
+  <div class="flex flex-row mb-5">
+    <div class="grow">{due}</div>
+    <div>Total: ${total}</div>
+  </div>
+  <table class="table-auto">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Amount</th>
+        <th>Paid</th>
+      </tr>
+    </thead>
+    <tbody>
+      (
+        person.map((personArray) => (
+          <>
+            <tr>
+              <td>{personArray.name}</td>
+              <td>${personArray.cost}</td>
+              <td class="m-l-5">
+                <input
+                  checked
+                  id="paid"
+                  type="checkbox"
+                  value=""
+                  class="w-4 h-4"
+                />
+              </td>
+            </tr>{
+          </>
+        ))
+        )
+    </tbody>
+  </table>
+</div>
