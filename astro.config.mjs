@@ -12,4 +12,6 @@ export default defineConfig({
 },
 
   adapter: cloudflare(),
+  site:'https://bills-tracker.adovaz.github.io',
+  base: 'bills-tracker',
 });
