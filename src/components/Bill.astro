@@ -1,7 +1,32 @@
 ---
+import { date } from "astro:schema";
 import "../styles/global.css";
+import { db, bill, payment } from 'astro:db';
 
-const { due, total, person } = Astro.props;
+//const { due, total, person } = Astro.props;
+
+if (Astro.request.method === 'POST') {
+  // Parse form data
+  const formData = await Astro.request.formData();
+  const due = new Date( formData.get('due') );
+  const billCost = formData.get('cost');
+  const isOpen = true;
+  if (typeof due === Date() && typeof billCost === 'number' && typeof isOpen === 'boolean') {
+    // Insert form data into the table
+    await db.insert(bill).values({ due, billCost, isOpen });
+  }
+  const name = formData.get('name');
+  const paymentCost = formData.get('cost');
+  const isPaid = formData.get ('cost');
+  if (typeof name === 'string' && typeof paymentCost === 'number' && typeof isPaid === 'boolean') {
+    // Insert form data into the Comment table
+    await db.insert(bill).values({ name, paymentCost, isOpen });
+  }
+}
+
+//
+const bills = await db.select().from(bill);
+const payment = await db.select
 ---
 
 <div class="w-full p-5 text-left flex flex-col">
