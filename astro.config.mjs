@@ -15,6 +15,4 @@ export default defineConfig({
 
   integrations: [db()],
   adapter: cloudflare(),
-  site:'https://adovaz.github.io/bills-tracker/',
-  base: 'bills-tracker',
 });
