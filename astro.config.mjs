@@ -5,6 +5,8 @@ import catppuccin from "@catppuccin/tailwindcss";
 
 import db from "@astrojs/db";
 
+import cloudflare from "@astrojs/cloudflare";
+
 // https://astro.build/config
 export default defineConfig({
   vite: {    
@@ -12,4 +14,7 @@ export default defineConfig({
 },
 
   integrations: [db()],
+  adapter: cloudflare(),
+  site:'https://adovaz.github.io/bills-tracker/',
+  base: 'bills-tracker',
 });

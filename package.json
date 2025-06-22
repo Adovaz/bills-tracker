@@ -9,6 +9,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^12.6.0",
     "@astrojs/db": "^0.15.0",
     "@mui/icons-material": "^7.1.1",
     "@tailwindcss/vite": "^4.1.10",
@@ -17,6 +18,14 @@
     "tailwindcss": "^4.1.10"
   },
   "devDependencies": {
-    "@catppuccin/tailwindcss": "^0.1.6"
-  }
+    "@catppuccin/tailwindcss": "^0.1.6",
+    "wrangler": "^4.20.5"
+  },
+  "scripts": {
+  "dev": "astro dev",
+  "build": "astro build",
+  "preview": "astro preview",
+  "astro": "astro",
+  "test": "echo \"No tests specified\" && exit 0"
+}
 }
