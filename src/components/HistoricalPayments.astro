@@ -1,0 +1,63 @@
+---
+import { date } from "astro:schema";
+import "../styles/global.css";
+import { db, eq, payment } from "astro:db";
+
+type Props = { billID: number };
+const { billID } = Astro.props;
+
+const payments = await db
+  .select()
+  .from(payment)
+  .where(eq(payment.billId, billID));
+---
+
+<table class="table-fixed">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Amount</th>
+      <th>Paid</th>
+    </tr>
+  </thead>
+  <tbody>
+    {
+      payments.map(({ name, cost, isPaid }) => {
+        return (
+          <tr>
+            <td class="m-2 p-1">{name}</td>
+            <td class="p-1">${cost}</td>
+            <td>
+              <input
+                id="paidCheckbox"
+                type="checkbox"
+                class="h-4"
+                disabled
+                checked={isPaid}
+              />
+            </td>
+          </tr>
+        );
+      })
+    }
+  </tbody>
+</table>
+<script>
+  import { actions } from "astro:actions";
+
+  const createPaymentButtons = document.querySelectorAll(
+    "button.createPayment"
+  );
+
+  createPaymentButtons.forEach((button) => {
+    button.addEventListener("click", async () => {
+      // This is needed because TypeScript says this is an "Element",
+      // but this is an HTMLElement!
+      const billId = parseInt((button as HTMLElement).dataset.create!);
+      console.log(billId);
+
+      const { data, error } = await actions.addPayment(billId);
+      if (!error) window.location.reload();
+    });
+  });
+</script>

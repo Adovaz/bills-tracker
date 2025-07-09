@@ -1,7 +1,9 @@
 ---
 import "../styles/global.css";
 import Bill from "./Bill.astro";
-import BillData from "../data/openBills.json";
+import { db, bill, payment } from "astro:db";
+
+const bills = await db.select().from(bill);
 ---
 
 <div
@@ -11,18 +13,33 @@ import BillData from "../data/openBills.json";
     <div class="pb-3">Open Bills</div>
     <div class="divide-y-2">
       {
-      BillData.map(({ isOpen, due, total, person, }) => (
-      <Bill due = {due}, total = {total}, person = {person}/>
-      ))
+        // You can do <Bill {...bill}> here to automatically pass through all the variables without having to type them out.
+        bills.filter((bill) => bill.isOpen).map((bill) => <Bill {...bill} />)
       }
     </div>
   </div>
   <div class="flex flex-col">
     <button
-      class="m-3 center rounded-lg p-3 text-lg text-slate-800 bg-indigo-300"
+      class="m-3 createBill center rounded-lg p-3 text-lg text-slate-800 bg-indigo-300"
     >
       <a href=""> Create + </a>
     </button>
     <div class="grow"></div>
   </div>
 </div>
+<script>
+  import { actions } from "astro:actions";
+
+  const createBillButtons = document.querySelectorAll("button.createBill");
+
+  createBillButtons.forEach((button) => {
+    button.addEventListener("click", async () => {
+      // This is needed because TypeScript says this is an "Element",
+      // but this is an HTMLElement!
+      const id = parseInt((button as HTMLElement).dataset.delete!);
+      console.log(id);
+      const { data, error } = await actions.addBill();
+      if (!error) window.location.reload();
+    });
+  });
+</script>

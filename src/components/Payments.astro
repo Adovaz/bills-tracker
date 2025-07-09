@@ -1,0 +1,107 @@
+---
+import { date } from "astro:schema";
+import "../styles/global.css";
+import { db, eq, payment } from "astro:db";
+
+type Props = { billID: number };
+const { billID } = Astro.props;
+
+const payments = await db
+  .select()
+  .from(payment)
+  .where(eq(payment.billId, billID));
+---
+
+<table class="table-auto">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Amount</th>
+      <th>Paid</th>
+    </tr>
+  </thead>
+  <tbody>
+    {
+      payments.map(({ id, name, cost, isPaid }) => {
+        return (
+          <tr class="paymentRow" data-billid={billID} data-id={id}>
+            <td>
+              <input
+                class="w-25 border rounded-md m-2 p-1"
+                type="text"
+                id={`name-${id}`}
+                name="name"
+                value={name}
+              />
+            </td>
+            <td>
+              $
+              <input
+                class="w-25 border rounded-md p-1"
+                type="number"
+                id={`paymentCost-${id}`}
+                name="cost"
+                value={cost}
+              />
+            </td>
+            <td>
+              <input
+                id={`paidCheckbox-${id}`}
+                type="checkbox"
+                class=" w-4 h-4"
+                checked={isPaid}
+              />
+            </td>
+            <td class="flex flex-row justify-end">
+              <button
+                class="deletePayment cursor-pointer m-3 rounded-lg p-2 text-lg text-slate-800 bg-red-300"
+                data-delete={id}
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+        );
+      })
+    }
+  </tbody>
+</table>
+<button
+  class="createPayment cursor-pointer w-full text-center mt-5 rounded-md bg-indigo-300 text-2xl"
+  data-create={billID}>+</button
+>
+<script>
+  import { actions } from "astro:actions";
+
+  const createPaymentButtons = document.querySelectorAll(
+    "button.createPayment"
+  );
+
+  createPaymentButtons.forEach((button) => {
+    button.addEventListener("click", async () => {
+      // This is needed because TypeScript says this is an "Element",
+      // but this is an HTMLElement!
+      const billId = parseInt((button as HTMLElement).dataset.create!);
+      console.log(billId);
+
+      const { data, error } = await actions.addPayment(billId);
+      if (!error) window.location.reload();
+    });
+  });
+
+  const deletePaymentButtons = document.querySelectorAll(
+    "button.deletePayment"
+  );
+
+  deletePaymentButtons.forEach((button) => {
+    button.addEventListener("click", async () => {
+      // This is needed because TypeScript says this is an "Element",
+      // but this is an HTMLElement!
+      const id = parseInt((button as HTMLElement).dataset.delete!);
+      console.log(id);
+
+      const { data, error } = await actions.deletePayment(id);
+      if (!error) window.location.reload();
+    });
+  });
+</script>

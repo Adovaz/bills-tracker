@@ -1,0 +1,22 @@
+---
+import "../styles/global.css";
+import Bill from "./Bill.astro";
+import { db, bill, payment } from "astro:db";
+import HistoricalBill from "./HistoricalBill.astro";
+
+const bills = await db.select().from(bill);
+---
+
+<div
+  class="m-5 top-0 left-0 right-0 rounded-lg flex flex-row bg-slate-100 shadow-2xl"
+>
+  <div class="m-3 p-3 top-0 left-0 right-0 grow text-center text-xl">
+    <div class="pb-3">Historical Bills</div>
+    <div class="divide-y-2">
+      {
+        // You can do <Bill {...bill}> here to automatically pass through all the variables without having to type them out.
+        bills.filter((bill) => !bill.isOpen).map((bill) => <HistoricalBill {...bill} />)
+      }
+    </div>
+  </div>
+</div>

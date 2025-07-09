@@ -1,89 +1,163 @@
 ---
-import { date } from "astro:schema";
 import "../styles/global.css";
-import { db, bill, payment } from 'astro:db';
+import type { APIRoute } from "astro";
+import { bill, db, eq } from "astro:db";
+import Payments from "./Payments.astro";
 
-//const { due, total, person } = Astro.props;
+// Inferred type from your `db/config.ts` file.
+// See https://orm.drizzle.team/docs/goodies#type-api
+type Props = typeof bill.$inferSelect;
 
-if (Astro.request.method === 'POST') {
-  // Parse form data
-  const formData = await Astro.request.formData();
-  const due = new Date( formData.get('due') );
-  const billCost = formData.get('cost');
-  const isOpen = true;
-  if (typeof due === Date() && typeof billCost === 'number' && typeof isOpen === 'boolean') {
-    // Insert form data into the table
-    await db.insert(bill).values({ due, billCost, isOpen });
-  }
-  const name = formData.get('name');
-  const paymentCost = formData.get('cost');
-  const isPaid = formData.get ('cost');
-  if (typeof name === 'string' && typeof paymentCost === 'number' && typeof isPaid === 'boolean') {
-    // Insert form data into the Comment table
-    await db.insert(bill).values({ name, paymentCost, isOpen });
-  }
-}
-
-//
-const bills = await db.select().from(bill);
-const payment = await db.select
+const { id, due, cost } = Astro.props;
 ---
 
 <div class="w-full p-5 text-left flex flex-col">
-  <div class="flex flex-row mb-5">
-    <div class="grow">{due}</div>
-    <div>Total: ${total}</div>
+  <div class="flex flex-col gap-6">
+    <div class="flex flex-col p-4 mb-4">
+      <div class="flex flex-row grid-flow-row mb-2">
+        <input
+          class="grow-0 w-50 p-2 border rounded-md flex-shrink"
+          type="date"
+          id={`due-${id}`}
+          name="due"
+          value={due.toISOString().substring(0, 10)}
+          data-save={id}
+        />
+        <div class="grow"></div>
+        <div>
+          $<input
+            class="grow-0 w-25 ml-1 p-2 border rounded-md flex-shrink"
+            type="number"
+            id={`billCost-${id}`}
+            name="billCost"
+            value={cost}
+            data-save={id}
+          />
+        </div>
+      </div>
+      <Payments billID={id} />
+    </div>
   </div>
-  <table class="table-fixed">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Amount</th>
-        <th>Paid</th>
-      </tr>
-    </thead>
-    <tbody>
-      {
-        person.map(({ name, cost, paid }) => {
-          return (
-            <tr>
-              <td>
-                <input
-                  class="w-25"
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={name}
-                />
-              </td>
-              <td>
-                $
-                <input
-                  class="w-25"
-                  type="number"
-                  id="cost"
-                  name="cost"
-                  value={cost}
-                />
-              </td>
-              <td>
-                <input id="paidCheckbox" type="checkbox" class="w-4 h-4" checked = {paid} />
-              </td>
-            </tr>
-          );
-        })
-      }
-    </tbody>
-  </table>
   <div class="flex flex-row">
     <div class="flex-grow"></div>
     <button
-      class="m-3 center rounded-lg p-2 text-lg text-slate-800 bg-indigo-300"
+      class="save cursor-pointer m-3 center rounded-lg p-2 text-lg text-slate-800 bg-indigo-300 save"
+      data-save={id}
     >
-      <a href=""> Save </a>
+      Save
     </button>
-    <button class="m-3 center rounded-lg p-2 text-lg text-slate-800 bg-red-300">
-      <a href=""> Delete</a>
+    <button
+      class="close cursor-pointer m-3 center rounded-lg p-2 text-lg text-slate-800 bg-orange-300"
+      data-close={id}
+      data-isOpen="false"
+    >
+      Close
     </button>
+    <button
+      class="deleteBill cursor-pointer m-3 center rounded-lg p-2 text-lg text-slate-800 bg-red-300"
+      data-delete={id}
+    >
+      Delete
+    </button>
+
+    <script>
+      function convertToBoolean(input: string): boolean | undefined {
+        try {
+          return JSON.parse(input.toLowerCase());
+        } catch (e) {
+          return undefined;
+        }
+      }
+
+      import { actions } from "astro:actions";
+
+      const saveButtons = document.querySelectorAll("button.save");
+
+      saveButtons.forEach((button) => {
+        button.addEventListener("click", async () => {
+          // This is needed because TypeScript says this is an "Element",
+          // but this is an HTMLElement!
+
+          const billId = +(button as HTMLElement).dataset.save!;
+          const dueInput = document.getElementById(
+            `due-${billId}`
+          ) as HTMLInputElement;
+          const due: Date = new Date(dueInput.value);
+          const billCostInput = document.getElementById(
+            `billCost-${billId}`
+          ) as HTMLInputElement;
+          const billCost: number = +billCostInput.value;
+          const { data, error } = await actions.saveBill({
+            id: billId,
+            due: due,
+            cost: billCost,
+            isOpen: true,
+          });
+
+          const payments = document.querySelectorAll("tr.paymentRow");
+          for (const payment of payments) {
+            const paymentBillID = +(payment as HTMLElement).dataset.billid!;
+            if (paymentBillID === billId) {
+              const paymentId = +(payment as HTMLElement).dataset.id!;
+
+              const paymentCostInput = document.getElementById(
+                `paymentCost-${paymentId}`
+              ) as HTMLInputElement;
+              const paymentCost: number = +paymentCostInput.value;
+
+              const nameInput = document.getElementById(
+                `name-${paymentId}`
+              ) as HTMLInputElement;
+              const name: string = nameInput.value;
+
+              const isPaidInput = document.getElementById(
+                `paidCheckbox-${paymentId}`
+              ) as HTMLInputElement;
+              const isPaid: boolean = isPaidInput.checked;
+
+              const { data, error } = await actions.savePayment({
+                id: paymentId,
+                billId: billId,
+                name: name,
+                cost: paymentCost,
+                isPaid: isPaid,
+              });
+            }
+          }
+        });
+      });
+
+      const deleteBillButtons = document.querySelectorAll("button.deleteBill");
+
+      deleteBillButtons.forEach((button) => {
+        button.addEventListener("click", async () => {
+          // This is needed because TypeScript says this is an "Element",
+          // but this is an HTMLElement!
+          const id = parseInt((button as HTMLElement).dataset.delete!);
+          console.log(id);
+
+          const { data, error } = await actions.deleteBill(id);
+          if (!error) window.location.reload();
+        });
+      });
+
+      const closeButtons = document.querySelectorAll("button.close");
+
+      closeButtons.forEach((button) => {
+        button.addEventListener("click", async () => {
+          // This is needed because TypeScript says this is an "Element",
+          // but this is an HTMLElement!
+          const id = parseInt((button as HTMLElement).dataset.close!);
+          console.log(id);
+          const isOpen = !!(button as HTMLElement).dataset.isOpen!;
+          console.log(isOpen);
+          const { data, error } = await actions.updateBillStatus({
+            id: id,
+            isOpen: isOpen,
+          });
+          if (!error) window.location.reload();
+        });
+      });
+    </script>
   </div>
 </div>

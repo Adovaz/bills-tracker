@@ -1,0 +1,62 @@
+---
+import "../styles/global.css";
+import type { APIRoute } from "astro";
+import { bill, db, eq } from "astro:db";
+import Payments from "./Payments.astro";
+import HistoricalPayments from "./HistoricalPayments.astro";
+
+// Inferred type from your `db/config.ts` file.
+// See https://orm.drizzle.team/docs/goodies#type-api
+type Props = typeof bill.$inferSelect;
+
+const { id, due, cost } = Astro.props;
+---
+
+<div class="w-full p-5 text-left flex flex-col">
+  <div class="flex flex-col gap-6">
+    <div class="flex flex-col p-4 mb-4">
+      <div class="flex flex-row grid-flow-row mb-2">
+        <div class="grow-0 p-2 flex-shrink">
+          {due.toDateString()}
+        </div>
+        <div class="grow"></div>
+        <div class="grow-0 ml-1 p-2 flex-shrink">
+          ${cost}
+        </div>
+      </div>
+      <HistoricalPayments billID={id} />
+    </div>
+  </div>
+  <div class="flex flex-row">
+    <div class="flex-grow"></div>
+    <button
+      class="open m-3 center rounded-lg p-2 text-lg text-slate-800 bg-indigo-300"
+      data-open={id}
+      data-isOpen="true"
+    >
+      Open
+    </button>
+
+    <script>
+      import { actions } from "astro:actions";
+
+      const openButtons = document.querySelectorAll("button.open");
+
+      openButtons.forEach((button) => {
+        button.addEventListener("click", async () => {
+          // This is needed because TypeScript says this is an "Element",
+          // but this is an HTMLElement!
+          const id = parseInt((button as HTMLElement).dataset.open!);
+          console.log(id);
+          const isOpen = !(button as HTMLElement).dataset.isOpen!;
+          console.log(isOpen);
+          const { data, error } = await actions.updateBillStatus({
+            id: id,
+            isOpen: isOpen,
+          });
+          if (!error) window.location.reload();
+        });
+      });
+    </script>
+  </div>
+</div>
