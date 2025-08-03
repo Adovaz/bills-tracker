@@ -34,10 +34,6 @@ const bills = await db.select().from(bill);
 
   createBillButtons.forEach((button) => {
     button.addEventListener("click", async () => {
-      // This is needed because TypeScript says this is an "Element",
-      // but this is an HTMLElement!
-      const id = parseInt((button as HTMLElement).dataset.delete!);
-      console.log(id);
       const { data, error } = await actions.addBill();
       if (!error) window.location.reload();
     });
